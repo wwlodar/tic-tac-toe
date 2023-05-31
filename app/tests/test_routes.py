@@ -34,3 +34,6 @@ class TestIntegrations(unittest.TestCase):
         )
         assert response_create.request.path == "/"
         assert b"Incorrect username!" in response_create.data
+
+    def test_redirect(self):
+        pass
