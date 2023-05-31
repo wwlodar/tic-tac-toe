@@ -14,7 +14,7 @@ pipeline {
     stage('Test') {
       steps {
         sh 'pip install pytest'
-        sh 'pytest app/tests/'
+        sh 'python -m pytest app/tests/'
         input(id: "Deploy Gate", message: "Deploy ${params.project_name}?", ok: 'Deploy')
       }
     }
