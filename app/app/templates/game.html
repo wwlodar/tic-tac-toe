@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tic-tac-toe game - Home</title>
+</head>
+<body>
+GAME
+
+<h1>Tic Tac Toe</h1>
+<table>
+  <tr>
+      <td>
+    <input type="button" value=" " name="no" onclick="AddNewMove()">
+    <input type="text" id="result" size="20">
+    </td>
+    <td class="vert">2</td>
+    <td>3</td>
+  </tr>
+  <tr>
+    <td class="hori">4</td>
+    <td class="vert hori">5</td>
+    <td class="hori">6</td>
+  </tr>
+  <tr>
+    <td>7</td>
+    <td class="vert">8</td>
+    <td>9</td>
+  </tr>
+</table>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+<script type="text/javascript" charset="utf-8">
+    var socket = io();
+    socket.on('connect', function() {
+        socket.emit('my event', {data: 'I\'m connected!'});
+    });
+
+
+</script>
+<script>
+    let symbol = '{{user.symbol}}'
+    function AddNewMove()
+    {
+    let move = document.getElementById("result").value=symbol.setAttribute("disabled","disabled");
+    socket.emit("new_move", move)
+    }
+    </script>
+
+
+</body>
+</html>

@@ -1,0 +1,28 @@
+version: "3"
+
+services:
+  db:
+    image: postgres:11
+    ports:
+      - "5432:5432"
+    env_file: .env
+    networks:
+      - app-network
+  backend:
+    env_file: .env
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: bash -c "alembic upgrade head && flask --app app.run run --host 0.0.0.0 --port 5000 --reload"
+    volumes:
+      - .:/backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+networks:
+   app-network:
+     driver: bridge

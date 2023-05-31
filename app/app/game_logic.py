@@ -3,20 +3,25 @@ from itertools import cycle
 from tkinter import font
 from typing import NamedTuple
 
-class Player(NamedTuple):
+from app.app.models import User
+
+
+class Player(User):
     label: str
-    color: str
+
 
 class Move(NamedTuple):
     row: int
     col: int
     label: str = ""
 
+
 BOARD_SIZE = 3
 DEFAULT_PLAYERS = (
     Player(label="X", color="blue"),
     Player(label="O", color="green"),
 )
+
 
 class TicTacToeGame:
     def __init__(self, players=DEFAULT_PLAYERS, board_size=BOARD_SIZE):
@@ -37,10 +42,7 @@ class TicTacToeGame:
         self._winning_combos = self._get_winning_combos()
 
     def _get_winning_combos(self):
-        rows = [
-            [(move.row, move.col) for move in row]
-            for row in self._current_moves
-        ]
+        rows = [[(move.row, move.col) for move in row] for row in self._current_moves]
         columns = [list(col) for col in zip(*rows)]
         first_diagonal = [row[i] for i, row in enumerate(rows)]
         second_diagonal = [col[j] for j, col in enumerate(reversed(columns))]
@@ -76,9 +78,7 @@ class TicTacToeGame:
     def is_tied(self):
         """Return True if the game is tied, and False otherwise."""
         no_winner = not self._has_winner
-        played_moves = (
-            move.label for row in self._current_moves for move in row
-        )
+        played_moves = (move.label for row in self._current_moves for move in row)
         return no_winner and all(played_moves)
 
     def reset_game(self):
@@ -88,6 +88,7 @@ class TicTacToeGame:
                 row_content[col] = Move(row, col)
         self._has_winner = False
         self.winner_combo = []
+
 
 class TicTacToeBoard(tk.Tk):
     def __init__(self, game):
@@ -179,12 +180,3 @@ class TicTacToeBoard(tk.Tk):
             button.config(highlightbackground="lightblue")
             button.config(text="")
             button.config(fg="black")
-
-def main():
-    """Create the game's board and run its main loop."""
-    game = TicTacToeGame()
-    board = TicTacToeBoard(game)
-    board.mainloop()
-
-if __name__ == "__main__":
-    main()
