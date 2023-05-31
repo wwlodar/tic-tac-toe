@@ -14,7 +14,7 @@ pipeline {
     stage('Test') {
       steps {
         sh 'pip install pytest'
-        sh 'python -m pytest app/tests/'
+        sh 'pytest app/tests --junitxml results.xml tests.py'
         input(id: "Deploy Gate", message: "Deploy ${params.project_name}?", ok: 'Deploy')
       }
     }
@@ -31,7 +31,7 @@ pipeline {
   post {
         always {
             echo 'The pipeline completed'
-            junit allowEmptyResults: true, testResults:'**/test_reports/*.xml'
+            junit allowEmptyResults: true, testResults:'**/results.xml'
         }
         success {
 
