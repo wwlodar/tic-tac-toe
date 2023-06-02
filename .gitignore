@@ -111,3 +111,4 @@ dmypy.json
 .vscode/
 .vscode
 app.db
+node_modules/

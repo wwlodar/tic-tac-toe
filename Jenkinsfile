@@ -1,46 +1,35 @@
 pipeline {
-  agent any
-  stages {
-    stage('Build') {
-      parallel {
-        stage('Build') {
-          steps {
-            sh 'echo "building the repo"'
-          }
+ agent any
+triggers {
+    githubPush()
+}
+
+stages {
+
+    stage('Setup'){
+       steps{
+        dir('.'){
+            sh 'python3.8 -m venv ./venv'
         }
-      }
-    }
-
-    stage('Test') {
-      steps {
-        sh 'pip install pytest'
-        sh 'pytest app/tests --junitxml results.xml tests.py'
-        input(id: "Deploy Gate", message: "Deploy ${params.project_name}?", ok: 'Deploy')
-      }
-    }
-
-    stage('Deploy')
-    {
-      steps {
-        echo "deploying the application"
-      }
-    }
-
-  }
-
-  post {
-        always {
-            echo 'The pipeline completed'
-            junit allowEmptyResults: true, testResults:'**/results.xml'
         }
-        success {
+     }
 
-            sh "sudo nohup python3 app.run.py > log.txt 2>&1 &"
-            echo "Flask Application Up and running!!"
-        }
-        failure {
-            echo 'Build stage failed'
-            error('Stopping early…')
-        }
+
+stage('Unit Tests'){
+           steps{
+             dir('.') {
+                 sh '. ./venv/bin/activate'
+                 sh 'pip install -r requirements.txt'
+                 sh 'pytest -v --junitxml=docs/unit-tests/htmlcoverage/coverage.xml --cov-report xml --cov app.main'
+             }
+            }
+         }
+       stage('Publish Test Report'){
+           steps{
+              cobertura autoUpdateHealth: false, autoUpdateStability: false, coberturaReportFile: 'coverage*.xml', conditionalCoverageTargets: '70, 0, 0', failUnhealthy: false, failUnstable: false, lineCoverageTargets: '80, 0, 0', maxNumberOfBuilds: 0, methodCoverageTargets: '80, 0, 0', onlyStable: false, sourceEncoding: 'ASCII', zoomCoverageChart: false
+              archiveArtifacts artifacts: 'docs/unit-tests/htmlcoverage/*.*'
+            }
+         }
+
       }
 }

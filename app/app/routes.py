@@ -1,9 +1,9 @@
-from flask import flash, redirect, render_template
+from flask import flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_user
 
 from app.app import forms
 from app.app.models import User
-from app.app.utils import redirect_if_not_logged_in
+from app.app.stats import get_user_stats
 from app.extensions import db
 from app.run import app
 
@@ -13,15 +13,16 @@ def assign_username():
     if not current_user.is_active:
         form = forms.NameForm()
         print(form.username)
-        if form.validate_on_submit():
-            new_user = User(username=form.username.data)
-            db.session.add(new_user)
-            db.session.commit()
+        if request.method == "POST":
+            if form.validate_on_submit():
+                new_user = User(username=form.username.data)
+                db.session.add(new_user)
+                db.session.commit()
 
-            login_user(new_user)
-            return redirect("/home")
-        else:
-            flash("Incorrect username!")
+                login_user(new_user)
+                return redirect("/home")
+            else:
+                flash("Username must have between 1 and 30 characters")
 
         return render_template("username.html", form=form)
 
@@ -31,8 +32,10 @@ def assign_username():
 
 @app.route("/home")
 def homepage():
-    redirect_if_not_logged_in(current_user)
-    return render_template("home.html", current_user=current_user)
+    if current_user.is_active == False:
+        return redirect(url_for("assign_username"))
+    else:
+        return render_template("home.html", current_user=current_user)
 
 
 @app.route("/health")
@@ -42,22 +45,19 @@ def health():
 
 @app.route("/game")
 def game():
-    redirect_if_not_logged_in(current_user)
-    # get player 1  -> wait until player 2 connects
-    # if more players -> wait for user with status waiting
-    # after that change player status to in game and randomize who gets O and X
-    # start the timer and the game
+    if current_user.is_active == False:
+        return redirect(url_for("assign_username"))
 
-    # once game finishes -> wait 1 sec; redirect to homepage, show message ("Won/lost/tied")
-    return {"Message": "Game is on"}
+    return render_template("game.html", current_user=current_user)
 
 
 @app.route("/stats")
 def stats():
-    redirect_if_not_logged_in(current_user)
-    # if username
-    # else redirect to assign_username
-    return {"Message": "Your stats"}
+    if current_user.is_active == False:
+        return redirect(url_for("assign_username"))
+    else:
+        stats = get_user_stats(current_user)
+        return render_template("stats.html", current_user=current_user, stats=stats)
 
 
 @app.route("/add_points")

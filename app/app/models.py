@@ -15,12 +15,6 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-class UserState(enum.Enum):
-    idle = "idle"
-    waiting_for_game = "waiting_for_game"
-    in_game = "in_game"
-
-
 class GameResult(enum.Enum):
     win = "win"
     lose = "lose"
@@ -37,7 +31,6 @@ class User(db.Model):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     username: Mapped[str] = mapped_column(String(30))
-    status: Mapped[UserState] = mapped_column(default="idle")
     points: Mapped[int] = mapped_column(default=0)
     added_points: Mapped[bool] = mapped_column(default=False)
     is_active: Mapped[bool] = mapped_column(default=True)
@@ -51,16 +44,17 @@ class User(db.Model):
 class Game(db.Model):
     __tablename__ = "games"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
 
     player_1_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     player_2_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
 
     status: Mapped[GameStatus]
-
-    time_in_seconds: Mapped[int]
-    date: Mapped[datetime] = mapped_column(
+    date_started: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
+    )
+    date_ended: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), onupdate=func.now(), nullable=True
     )
 
 

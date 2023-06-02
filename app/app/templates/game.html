@@ -2,51 +2,158 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Tic-tac-toe game - Home</title>
+    <title>Tic-tac-toe game </title>
 </head>
 <body>
-GAME
+<h1>Tic Tac Toe game</h1>
 
-<h1>Tic Tac Toe</h1>
-<table>
+<div class="container">
+  {% for message in get_flashed_messages() %}
+  <div class="alert alert-warning">
+      {{ message }}
+  </div>
+  {% endfor %}
+
+  <a id="importantText"></a>
+  <div>Hello, player {{current_user.username}}</div>
+  <div>
+  <a>Your opponent id: </a><a id="opponentName"></a>
+  </div>
+<div><button id="btn_start_game" onclick="StartGame()">Start game</button></div>
+
+
+<table id="table">
   <tr>
       <td>
-    <input type="button" value=" " name="no" onclick="AddNewMove()">
-    <input type="text" id="result" size="20">
+    <input type="button" class="btn" id="1" value="  " name="value" onclick="AddNewMove('1')">
     </td>
-    <td class="vert">2</td>
-    <td>3</td>
+    <td class="vert">
+      <input type="button" class="btn" id="2" value="  " name="value" onclick="AddNewMove('2')">
+    </td>
+    <td>
+      <input type="button" class="btn" id="3" value="  " name="value" onclick="AddNewMove('3')">
+    </td>
   </tr>
   <tr>
-    <td class="hori">4</td>
-    <td class="vert hori">5</td>
-    <td class="hori">6</td>
+    <td class="hori">
+      <input type="button" class="btn" id="4" value="  " name="value" onclick="AddNewMove('4')">
+    </td>
+    <td class="vert hori">
+      <input type="button" class="btn" id="5" value="  " name="value" onclick="AddNewMove('5')">
+    </td>
+    <td class="hori">
+      <input type="button" class="btn" id="6" value="  " name="value" onclick="AddNewMove('6')">
+    </td>
   </tr>
   <tr>
-    <td>7</td>
-    <td class="vert">8</td>
-    <td>9</td>
+    <td>
+      <input type="button" class="btn" id="7" value="  " name="value" onclick="AddNewMove('7')">
+    </td>
+    <td class="vert">
+      <input type="button" class="btn" id="8" value="  " name="value" onclick="AddNewMove('8')"></td>
+    <td>
+      <input type="button" class="btn" id="9" value="  " name="value" onclick="AddNewMove('9')">
+    </td>
   </tr>
 </table>
+<div>
+  <a href="{{url_for('homepage')}}" >Homepage</a>
+ </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
 <script type="text/javascript" charset="utf-8">
-    var socket = io();
-    socket.on('connect', function() {
-        socket.emit('my event', {data: 'I\'m connected!'});
-    });
+  var socket = io();
 
+  socket.on("connect", function () {
+    socket.emit(
+      "event connect",
+      { data: "I'm connected!" },
+      { current_user_id: "{{current_user.id}}" }
+    );
+});
 
+  socket.on("message from server", function (data) {
+    console.log(data);
+    document.getElementById("importantText").textContent = JSON.parse(data).data;
+  });
 </script>
-<script>
-    let symbol = '{{user.symbol}}'
-    function AddNewMove()
-    {
-    let move = document.getElementById("result").value=symbol.setAttribute("disabled","disabled");
-    socket.emit("new_move", move)
-    }
-    </script>
 
+<script>
+function AddNewMove(id) {
+  let current_symbol = localStorage.getItem("current_symbol");
+  let symbol = localStorage.getItem("symbol");
+  let gameId = localStorage.getItem("gameId");
+  if (current_symbol != symbol) {
+    let btn = document.getElementById(id);
+    let move_value = btn.id;
+    btn.innerHTML = new String(symbol);
+    btn.value = new String(symbol);
+    btn.setAttribute("disabled", "disabled");
+    socket.emit(
+      "move",
+      { current_user_id: "{{current_user.id}}" },
+      { move: move_value },
+      { symbol: symbol },
+      { game_id: gameId }
+    );
+  }
+}
+</script>
+
+<script>
+socket.on("opponent name", function (data) {
+  console.log(data);
+  document.getElementById("opponentName").textContent += JSON.parse(data).data;
+});
+document.getElementById("table").style.visibility = "visible";
+</script>
+
+<script>
+function StartGame() {
+  console.log("started");
+  socket.emit("start game", "{{current_user.id}}");
+  let btn_start_game = document.getElementById("btn_start_game");
+  btn_start_game.setAttribute("disabled", "disabled");
+}
+
+socket.on("symbol", function (data) {
+  console.log(data);
+  var symbol_data = JSON.parse(data);
+  localStorage.setItem("symbol", symbol_data.data);
+});
+</script>
+
+<script>
+socket.on("update board", function (data) {
+  let btn = document.getElementById(data.move);
+  btn.innerHTML = data.symbol;
+  btn.value = data.symbol;
+  localStorage.setItem("current_symbol", data.symbol);
+  btn.setAttribute("disabled", "disabled");
+});
+</script>
+
+<script>
+socket.on("finished game", function () {
+  document
+    .querySelectorAll("btn")
+    .forEach((el) => el.setAttribute("disabled", true));
+});
+</script>
+
+<script>
+  socket.on("new game id", function (data) {
+    let SetGameId = JSON.parse(data);
+    console.log(SetGameId);
+    localStorage.setItem("gameId", SetGameId.data);
+  });
+</script>
 
 </body>
 </html>
+
+<style>
+  table {
+    visibility: hidden;
+  }
+</style>

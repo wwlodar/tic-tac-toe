@@ -1,12 +1,14 @@
 import unittest
 
-from app.run import app
+from app.app.main import create_app
 
 
 class TestIntegrations(unittest.TestCase):
     def setUp(self):
+        app = create_app()
         app.config["TESTING"] = True
         app.config["WTF_CSRF_ENABLED"] = False
+        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite://"
         self.app = app.test_client()
 
     def test_username_not_logged(self):
