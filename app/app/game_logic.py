@@ -1,11 +1,11 @@
-from typing import List
+from typing import Dict, List, Union
 
 from app.app.models import Game, GameResult, GameStatus, User, UserGames
 from app.extensions import db
 
-player_list: List[str] = []
-board = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-winning_combinations = [
+player_list: List[int] = []
+board: List[Union[str, int]] = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+winning_combinations: List[List[int]] = [
     [0, 1, 2],
     [3, 4, 5],
     [6, 7, 8],
@@ -17,7 +17,7 @@ winning_combinations = [
 ]
 
 
-def add_new_player(current_user_id):
+def add_new_player(current_user_id: int):
     if len(player_list) == 0:
         player_list.append(current_user_id)
         return {"data": "Wait for another player"}
@@ -26,11 +26,11 @@ def add_new_player(current_user_id):
         return select_symbols(player_list)
 
 
-def select_symbols(player_list):
+def select_symbols(player_list: List[int]):
     return {player_list[0]: "X", player_list[1]: "O"}
 
 
-def get_opponent(result_of_selection, current_user_id):
+def get_opponent(result_of_selection: Dict[int, str], current_user_id: int):
     opponent_id = [i for i in list(result_of_selection.keys()) if i != current_user_id][
         0
     ]
@@ -38,7 +38,7 @@ def get_opponent(result_of_selection, current_user_id):
     return [opponent_id, opponent.username]
 
 
-def get_user_name(user_id):
+def get_user_name(user_id: int):
     user = User.query.get(int(user_id))
     return user.username
 
@@ -53,7 +53,7 @@ def clean_player_list():
     player_list = []
 
 
-def create_new_game(player_and_symbol: dict):
+def create_new_game(player_and_symbol: Dict[int, str]):
     board = [1, 2, 3, 4, 5, 6, 7, 8, 9]
     player_1 = list(player_and_symbol.keys())[0]
     player_2 = list(player_and_symbol.keys())[1]
@@ -69,13 +69,15 @@ def create_new_game(player_and_symbol: dict):
     return new_game.id
 
 
-def add_new_move(move, symbol):
+def add_new_move(move: int, symbol: str):
     if board[move - 1] == move:
         board[move - 1] = symbol
     return board
 
 
-def check_if_winning_move(current_user_id, symbol, board, game_id):
+def check_if_winning_move(
+    current_user_id: int, symbol: str, board: List[Union[str, int]], game_id: int
+):
     if check_for_tie():
         game = Game.query.filter_by(id=game_id).first()
         game.status = GameStatus("ended")

@@ -13,7 +13,7 @@ from app.app.models import Game, GameResult, GameStatus, User, UserGames
 
 
 def test_clean_player_list():
-    add_new_player(current_user_id="id_1")
+    add_new_player(current_user_id=1)
     assert len(game_logic.player_list) == 1
 
     clean_player_list()
@@ -21,11 +21,11 @@ def test_clean_player_list():
 
 
 def test_add_new_player(app, db):
-    result = add_new_player(current_user_id="id_1")
+    result = add_new_player(current_user_id=1)
     assert result == {"data": "Wait for another player"}
 
-    result = add_new_player(current_user_id="id_2")
-    assert result == {"id_1": "X", "id_2": "O"}
+    result = add_new_player(current_user_id=2)
+    assert result == {1: "X", 2: "O"}
 
 
 def test_get_opponent(app, db):
@@ -35,12 +35,12 @@ def test_get_opponent(app, db):
     db.session.add(user_2)
     db.session.commit()
 
-    result_of_selection = {"1": "X", "2": "O"}
-    current_user_id = "2"
+    result_of_selection = {1: "X", 2: "O"}
+    current_user_id = 2
     [opponent_id, opponent_username] = get_opponent(
         result_of_selection, current_user_id
     )
-    assert opponent_id == "1"
+    assert opponent_id == 1
     assert opponent_username == "user1"
 
 
@@ -65,7 +65,7 @@ def test_create_game(app, db):
     db.session.add(user_2)
     db.session.commit()
 
-    player_and_symbol = {"1": "X", "2": "O"}
+    player_and_symbol = {1: "X", 2: "O"}
     game_id = create_new_game(player_and_symbol)
     assert game_id == 1
 

@@ -33,7 +33,7 @@ def error_handler(e):
 @socketio.on("start game")
 def start_game(current_user_id):
     print("START GAME")
-    result_of_selection = add_new_player(current_user_id)
+    result_of_selection = add_new_player(int(current_user_id))
     print(result_of_selection)
     if "X" in result_of_selection.values():
         clean_board()
@@ -41,8 +41,8 @@ def start_game(current_user_id):
             i for i in list(result_of_selection.keys()) if i != current_user_id
         ][0]
 
-        current_user_name = get_user_name(current_user_id)
-        opponent_name = get_user_name(opponent_id)
+        current_user_name = get_user_name(int(current_user_id))
+        opponent_name = get_user_name(int(opponent_id))
 
         emit(
             "message from server",
