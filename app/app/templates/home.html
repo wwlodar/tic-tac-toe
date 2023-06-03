@@ -16,13 +16,13 @@
     {% endfor %}
 
    <div>Your statistics
-    <a href="{{url_for('stats')}}" >Click!</a>
+    <a href="{{url_for('myapp.statistics')}}" >Click!</a>
    </div>
 
    <div>Your points: {{current_user.points}} </div>
    {% if current_user.added_points == False %}
 
-   <button><a href="{{url_for('add_points')}}">Add 10 more points!</a></button>
+   <button><a href="{{url_for('myapp.add_points')}}">Add 10 more points!</a></button>
 
    {% elif current_user.added_points == True and current_user.points > 4 %}
 
@@ -31,7 +31,7 @@
    <div>
     <button>
 
-     <a href="{{url_for('game')}}" >Play game! (Costs 3 points)</a>
+     <a href="{{url_for('myapp.game')}}" >Play game! (Costs 3 points)</a>
 
      </button>
     </div>

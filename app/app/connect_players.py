@@ -8,6 +8,7 @@ from app.app.game_logic import (
     add_new_player,
     check_if_winning_move,
     clean_board,
+    clean_player_list,
     create_new_game,
     get_user_name,
 )
@@ -22,7 +23,6 @@ socket_list = {}
 def connect(data, current_user_id):
     socket_list[current_user_id["current_user_id"]] = request.sid
     print("You are connected")
-    emit("opponent_response", data)
 
 
 @socketio.on_error()
@@ -36,6 +36,7 @@ def start_game(current_user_id):
     result_of_selection = add_new_player(current_user_id)
     print(result_of_selection)
     if "X" in result_of_selection.values():
+        clean_board()
         opponent_id = [
             i for i in list(result_of_selection.keys()) if i != current_user_id
         ][0]
@@ -69,7 +70,7 @@ def start_game(current_user_id):
         game_id = create_new_game(player_and_symbol=result_of_selection)
         emit("new game id", json.dumps({"data": game_id}), broadcast=True)
     else:
-        emit("message from server", json.dumps({"data": result_of_selection}))
+        emit("message from server", json.dumps({result_of_selection}))
 
 
 @socketio.on("disconnect")
@@ -104,4 +105,4 @@ def handle_move(current_user_id, move, symbol, game_id):
             ),
             broadcast=True,
         )
-        clean_board()
+        clean_player_list()

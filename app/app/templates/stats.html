@@ -20,13 +20,13 @@
 {% for game in stats %}
 <div>
     <a>Game id: </a>{{ game.game_id }}
-    <a>Time of game: </a>
+    <a>Game time (in seconds): </a>
     {% if game.game.date_ended == None %}
     <a></a>
     {% else %}
-    {{(game.game.date_ended-game.game.date_started).to_seconds()}}
+    {{(game.game.date_ended-game.game.date_started).seconds}}
     {% endif %}
-    <a>Game status: </a>{{ game.status }}
+    <a>Game status: </a>{{ game.status|enum_to_val }}
     <a>Opponent id: </a>
     {% if game.game.player_1_id == current_user.id %}
     {{ game.game.player_2_id }}
@@ -37,6 +37,9 @@
 
 {% endfor %}
 
+<div>
+    <a href="{{url_for('myapp.homepage')}}" >Homepage</a>
+</div>
 
 </body>
 </html>

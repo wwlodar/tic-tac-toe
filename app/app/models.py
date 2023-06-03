@@ -6,8 +6,7 @@ from sqlalchemy import DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
-from app.app.main import db
-from app.extensions import login_manager
+from app.extensions import db, login_manager
 
 
 @login_manager.user_loader

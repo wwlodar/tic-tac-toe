@@ -48,6 +48,11 @@ def clean_board():
     board = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
 
+def clean_player_list():
+    global player_list
+    player_list = []
+
+
 def create_new_game(player_and_symbol: dict):
     board = [1, 2, 3, 4, 5, 6, 7, 8, 9]
     player_1 = list(player_and_symbol.keys())[0]
@@ -71,8 +76,6 @@ def add_new_move(move, symbol):
 
 
 def check_if_winning_move(current_user_id, symbol, board, game_id):
-    print("check if winning")
-    print("game_id", game_id)
     if check_for_tie():
         game = Game.query.filter_by(id=game_id).first()
         game.status = GameStatus("ended")
@@ -89,7 +92,6 @@ def check_if_winning_move(current_user_id, symbol, board, game_id):
     # if winner, add 4 point to user.points
     for combination in winning_combinations:
         if board[combination[0]] == board[combination[1]] == board[combination[2]]:
-            print("Someone won")
             game = Game.query.filter_by(id=game_id).first()
             game.status = GameStatus("ended")
             player_1 = game.player_1_id
@@ -103,7 +105,6 @@ def check_if_winning_move(current_user_id, symbol, board, game_id):
 
             if symbol == board[combination[0]]:
                 if int(current_user_id) == int(player_1):
-                    print("player 1 won")
                     user_game_1 = UserGames(
                         user_id=player_1, status=GameResult("win"), game_id=game_id
                     )
@@ -114,7 +115,6 @@ def check_if_winning_move(current_user_id, symbol, board, game_id):
                     db.session.add(user_game_2)
                     winner = User.query.get(int(player_1))
                 else:
-                    print("player 2 won")
                     user_game_1 = UserGames(
                         user_id=player_1, status=GameResult("lose"), game_id=game_id
                     )

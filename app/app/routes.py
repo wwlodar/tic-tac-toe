@@ -1,14 +1,16 @@
-from flask import flash, redirect, render_template, request, url_for
+from enum import Enum
+
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_user
 
 from app.app import forms
-from app.app.models import User
-from app.app.stats import get_user_stats
+from app.app.models import Game, User, UserGames
 from app.extensions import db
-from app.run import app
+
+bp = Blueprint("myapp", __name__)
 
 
-@app.route("/", methods=["GET", "POST"])
+@bp.route("/", methods=["GET", "POST"])
 def assign_username():
     if not current_user.is_active:
         form = forms.NameForm()
@@ -30,39 +32,48 @@ def assign_username():
         return redirect("/home")
 
 
-@app.route("/home")
+@bp.route("/home")
 def homepage():
     if current_user.is_active == False:
-        return redirect(url_for("assign_username"))
+        return redirect(url_for("myapp.assign_username"))
     else:
         return render_template("home.html", current_user=current_user)
 
 
-@app.route("/health")
+@bp.route("/health")
 def health():
     return {"message": "It works!"}
 
 
-@app.route("/game")
+@bp.route("/game")
 def game():
     if current_user.is_active == False:
-        return redirect(url_for("assign_username"))
+        return redirect(url_for("myapp.assign_username"))
 
     return render_template("game.html", current_user=current_user)
 
 
-@app.route("/stats")
-def stats():
+@bp.app_template_filter("enum_to_val")
+def enum_to_val(obj):
+    if isinstance(obj, Enum):
+        return obj.value
+
+    return obj
+
+
+@bp.route("/stats")
+def statistics():
     if current_user.is_active == False:
-        return redirect(url_for("assign_username"))
+        return redirect(url_for("myapp.assign_username"))
     else:
-        stats = get_user_stats(current_user)
+        stats = UserGames.query.filter_by(user_id=current_user.id).join(Game).all()
         return render_template("stats.html", current_user=current_user, stats=stats)
 
 
-@app.route("/add_points")
+@bp.route("/add_points")
 def add_points():
-    redirect_if_not_logged_in(current_user)
+    if current_user.is_active == False:
+        return redirect(url_for("myapp.assign_username"))
     if current_user.added_points == False:
         current_user.points += 10
         current_user.added_points = True
