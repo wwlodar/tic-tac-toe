@@ -105,7 +105,6 @@ socket.on("opponent name", function (data) {
   console.log(data);
   document.getElementById("opponentName").textContent += JSON.parse(data).data;
 });
-document.getElementById("table").style.visibility = "visible";
 </script>
 
 <script>
@@ -154,9 +153,3 @@ socket.on("finished game", function () {
 
 </body>
 </html>
-
-<style>
-  table {
-    visibility: hidden;
-  }
-</style>
