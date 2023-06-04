@@ -9,6 +9,7 @@ Run app:
 1. Run: ``` docker compose -f docker-compose.yml build ```
 
 2. Run: ``` docker compose -f docker-compose.yml up ```
+3. App should be available at http://127.0.0.1:5000/
 
 
 Run tests:
