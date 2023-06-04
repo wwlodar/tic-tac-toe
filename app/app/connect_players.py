@@ -21,7 +21,7 @@ socket_list = {}
 
 @socketio.on("event connect")
 def connect(data, current_user_id):
-    socket_list[current_user_id["current_user_id"]] = request.sid
+    socket_list[int(current_user_id["current_user_id"])] = request.sid
     print("You are connected")
 
 
@@ -32,15 +32,12 @@ def error_handler(e):
 
 @socketio.on("start game")
 def start_game(current_user_id):
-    print("START GAME")
     result_of_selection = add_new_player(int(current_user_id))
-    print(result_of_selection)
     if "X" in result_of_selection.values():
         clean_board()
         opponent_id = [
             i for i in list(result_of_selection.keys()) if i != current_user_id
         ][0]
-
         current_user_name = get_user_name(int(current_user_id))
         opponent_name = get_user_name(int(opponent_id))
 
@@ -48,9 +45,9 @@ def start_game(current_user_id):
             "message from server",
             json.dumps({"data": f"Game starts! Your opponent is: {opponent_name}"}),
         )
-        emit("symbol", json.dumps({"data": result_of_selection[current_user_id]}))
-        emit("opponent name", json.dumps({"data": opponent_name}))
 
+        emit("symbol", json.dumps({"data": result_of_selection[int(current_user_id)]}))
+        emit("opponent name", json.dumps({"data": opponent_name}))
         emit(
             "message from server",
             json.dumps({"data": f"Game starts! Your opponent is: {current_user_name}"}),
@@ -70,7 +67,7 @@ def start_game(current_user_id):
         game_id = create_new_game(player_and_symbol=result_of_selection)
         emit("new game id", json.dumps({"data": game_id}), broadcast=True)
     else:
-        emit("message from server", json.dumps({result_of_selection}))
+        emit("message from server", json.dumps(result_of_selection))
 
 
 @socketio.on("disconnect")

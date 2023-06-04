@@ -21,6 +21,8 @@ def add_new_player(current_user_id: int):
     if len(player_list) == 0:
         player_list.append(current_user_id)
         return {"data": "Wait for another player"}
+    elif current_user_id in player_list:
+        return {"data": "Wait for another player"}
     else:
         player_list.append(current_user_id)
         return select_symbols(player_list)
