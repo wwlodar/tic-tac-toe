@@ -65,11 +65,7 @@
   var socket = io();
 
   socket.on("connect", function () {
-    socket.emit(
-      "event connect",
-      { data: "I'm connected!" },
-      { current_user_id: "{{current_user.id}}" }
-    );
+    socket.emit("event connect", { current_user_id: "{{current_user.id}}" });
 });
 
   socket.on("message from server", function (data) {
