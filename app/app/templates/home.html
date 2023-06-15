@@ -24,7 +24,7 @@
 
    <button><a href="{{url_for('myapp.add_points')}}">Add 10 more points!</a></button>
 
-   {% elif current_user.added_points == True and current_user.points > 4 %}
+   {% elif current_user.added_points == True and current_user.points > 2 %}
 
    <a>You can no longer add any points, but you still can play</a>
 
@@ -42,6 +42,9 @@
    <a>You can no longer add any points and you can't play. You've lost! </a>
 
     {% endif %}
+    <div>
+    <a href="{{url_for('myapp.logout')}}" >Create new user and play again</a>
+    </div>
 
 </body>
 </html>

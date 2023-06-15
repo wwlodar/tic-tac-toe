@@ -85,7 +85,11 @@ def handle_move(current_user_id, move, symbol, game_id):
         game_id["game_id"],
     )
     if result == "Tie":
-        emit("message from server", {"data": f"Game has ended, it was a tie"})
+        emit(
+            "message from server",
+            json.dumps({"data": "Game has ended, it was a tie"}),
+            broadcast=True,
+        )
     elif result == "No winner":
         pass
     else:

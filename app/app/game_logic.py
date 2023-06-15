@@ -87,8 +87,12 @@ def check_if_winning_move(
 
         player_1 = game.player_1_id
         player_2 = game.player_2_id
-        user_game_1 = UserGames(user_id=player_1, status="tie", game_id=game.id)
-        user_game_2 = UserGames(user_id=player_2, status="tie", game_id=game.id)
+        user_game_1 = UserGames(
+            user_id=player_1, status=GameResult("tie"), game_id=game.id
+        )
+        user_game_2 = UserGames(
+            user_id=player_2, status=GameResult("tie"), game_id=game.id
+        )
         db.session.add(user_game_1)
         db.session.add(user_game_2)
 
@@ -133,6 +137,7 @@ def check_if_winning_move(
 def check_for_tie() -> bool:
     check_for_num = [i for i in board if i in range(0, 10)]
     if len(check_for_num) == 0:
+        print("True")
         return True
     else:
         return False

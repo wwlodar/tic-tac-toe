@@ -1,7 +1,7 @@
 from enum import Enum
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
-from flask_login import current_user, login_user
+from flask_login import current_user, login_user, logout_user
 
 from app.app import forms
 from app.app.models import Game, User, UserGames
@@ -30,6 +30,12 @@ def assign_username():
 
     else:
         return redirect("/home")
+
+
+@bp.route("/logout", methods=["GET"])
+def logout():
+    logout_user()
+    return redirect(url_for("myapp.assign_username"))
 
 
 @bp.route("/home")
