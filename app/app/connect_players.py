@@ -16,18 +16,18 @@ from app.run import app
 
 socketio = SocketIO(app)
 
-socket_list = {}
+socket_dict = {}
 
 
 @socketio.on("event connect")
-def connect(data, current_user_id):
-    socket_list[int(current_user_id["current_user_id"])] = request.sid
+def connect(current_user_id):
+    socket_dict[int(current_user_id["current_user_id"])] = request.sid
     print("You are connected")
 
 
-@socketio.on_error()
-def error_handler(e):
-    print(e)
+@socketio.on("disconnect")
+def test_disconnect():
+    print("Client disconnected")
 
 
 @socketio.on("start game")
@@ -48,31 +48,27 @@ def start_game(current_user_id):
 
         emit("symbol", json.dumps({"data": result_of_selection[int(current_user_id)]}))
         emit("opponent name", json.dumps({"data": opponent_name}))
+
         emit(
             "message from server",
             json.dumps({"data": f"Game starts! Your opponent is: {current_user_name}"}),
-            to=socket_list[opponent_id],
+            to=socket_dict[opponent_id],
         )
         emit(
             "symbol",
             json.dumps({"data": result_of_selection[opponent_id]}),
-            to=socket_list[opponent_id],
+            to=socket_dict[opponent_id],
         )
         emit(
             "opponent name",
             json.dumps({"data": current_user_name}),
-            to=socket_list[opponent_id],
+            to=socket_dict[opponent_id],
         )
 
         game_id = create_new_game(player_and_symbol=result_of_selection)
         emit("new game id", json.dumps({"data": game_id}), broadcast=True)
     else:
         emit("message from server", json.dumps(result_of_selection))
-
-
-@socketio.on("disconnect")
-def test_disconnect():
-    print("Client disconnected")
 
 
 @socketio.on("move")
@@ -85,13 +81,12 @@ def handle_move(current_user_id, move, symbol, game_id):
     )
     result = check_if_winning_move(
         current_user_id["current_user_id"],
-        symbol["symbol"],
         updated_board,
         game_id["game_id"],
     )
     if result == "Tie":
         emit("message from server", {"data": f"Game has ended, it was a tie"})
-    elif not result:
+    elif result == "No winner":
         pass
     else:
         emit("finished game", broadcast=True)

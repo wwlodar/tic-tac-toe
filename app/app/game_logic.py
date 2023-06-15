@@ -1,4 +1,4 @@
-from typing import Dict, List, Union
+from typing import Any, Dict, List, Union
 
 from app.app.models import Game, GameResult, GameStatus, User, UserGames
 from app.extensions import db
@@ -17,7 +17,7 @@ winning_combinations: List[List[int]] = [
 ]
 
 
-def add_new_player(current_user_id: int):
+def add_new_player(current_user_id: int) -> Dict[Any, str]:
     if len(player_list) == 0:
         player_list.append(current_user_id)
         return {"data": "Wait for another player"}
@@ -28,11 +28,13 @@ def add_new_player(current_user_id: int):
         return select_symbols(player_list)
 
 
-def select_symbols(player_list: List[int]):
+def select_symbols(player_list: List[int]) -> Dict[int, str]:
     return {player_list[0]: "X", player_list[1]: "O"}
 
 
-def get_opponent(result_of_selection: Dict[int, str], current_user_id: int):
+def get_opponent(
+    result_of_selection: Dict[int, str], current_user_id: int
+) -> List[Union[str, int]]:
     opponent_id = [i for i in list(result_of_selection.keys()) if i != current_user_id][
         0
     ]
@@ -40,23 +42,22 @@ def get_opponent(result_of_selection: Dict[int, str], current_user_id: int):
     return [opponent_id, opponent.username]
 
 
-def get_user_name(user_id: int):
+def get_user_name(user_id: int) -> str:
     user = User.query.get(int(user_id))
     return user.username
 
 
-def clean_board():
+def clean_board() -> None:
     global board
     board = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
 
-def clean_player_list():
+def clean_player_list() -> None:
     global player_list
     player_list = []
 
 
-def create_new_game(player_and_symbol: Dict[int, str]):
-    board = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+def create_new_game(player_and_symbol: Dict[int, str]) -> int:
     player_1 = list(player_and_symbol.keys())[0]
     player_2 = list(player_and_symbol.keys())[1]
     p1 = User.query.get(int(player_1))
@@ -71,15 +72,15 @@ def create_new_game(player_and_symbol: Dict[int, str]):
     return new_game.id
 
 
-def add_new_move(move: int, symbol: str):
+def add_new_move(move: int, symbol: str) -> List[Union[str, int]]:
     if board[move - 1] == move:
         board[move - 1] = symbol
     return board
 
 
 def check_if_winning_move(
-    current_user_id: int, symbol: str, board: List[Union[str, int]], game_id: int
-):
+    current_user_id: int, board: List[Union[str, int]], game_id: int
+) -> str:
     if check_for_tie():
         game = Game.query.filter_by(id=game_id).first()
         game.status = GameStatus("ended")
@@ -93,7 +94,7 @@ def check_if_winning_move(
 
         db.session.commit()
         return "Tie"
-    # if winner, add 4 point to user.points
+
     for combination in winning_combinations:
         if board[combination[0]] == board[combination[1]] == board[combination[2]]:
             game = Game.query.filter_by(id=game_id).first()
@@ -102,35 +103,34 @@ def check_if_winning_move(
             player_2 = game.player_2_id
             db.session.commit()
 
-            if symbol == board[combination[0]]:
-                if int(current_user_id) == int(player_1):
-                    user_game_1 = UserGames(
-                        user_id=player_1, status=GameResult("win"), game_id=game_id
-                    )
-                    user_game_2 = UserGames(
-                        user_id=player_2, status=GameResult("lose"), game_id=game_id
-                    )
-                    db.session.add(user_game_1)
-                    db.session.add(user_game_2)
-                    winner = User.query.get(int(player_1))
-                else:
-                    user_game_1 = UserGames(
-                        user_id=player_1, status=GameResult("lose"), game_id=game_id
-                    )
-                    user_game_2 = UserGames(
-                        user_id=player_2, status=GameResult("win"), game_id=game_id
-                    )
-                    db.session.add(user_game_1)
-                    db.session.add(user_game_2)
-                    winner = User.query.get(int(player_2))
-                winner.points += 4
-                db.session.commit()
+            if int(current_user_id) == int(player_1):
+                user_game_1 = UserGames(
+                    user_id=player_1, status=GameResult("win"), game_id=game_id
+                )
+                user_game_2 = UserGames(
+                    user_id=player_2, status=GameResult("lose"), game_id=game_id
+                )
+                db.session.add(user_game_1)
+                db.session.add(user_game_2)
+                winner = User.query.get(int(player_1))
+            else:
+                user_game_1 = UserGames(
+                    user_id=player_1, status=GameResult("lose"), game_id=game_id
+                )
+                user_game_2 = UserGames(
+                    user_id=player_2, status=GameResult("win"), game_id=game_id
+                )
+                db.session.add(user_game_1)
+                db.session.add(user_game_2)
+                winner = User.query.get(int(player_2))
+            winner.points += 4
+            db.session.commit()
 
             return winner.username
-    return None
+    return "No winner"
 
 
-def check_for_tie():
+def check_for_tie() -> bool:
     check_for_num = [i for i in board if i in range(0, 10)]
     if len(check_for_num) == 0:
         return True
