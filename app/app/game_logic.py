@@ -100,11 +100,6 @@ def check_if_winning_move(
             game.status = GameStatus("ended")
             player_1 = game.player_1_id
             player_2 = game.player_2_id
-            print("current_user", current_user_id)
-            print("player1", player_1)
-            print("player2", player_2)
-            print("symbol", symbol)
-            print("board_combo", board[combination[0]])
             db.session.commit()
 
             if symbol == board[combination[0]]:
