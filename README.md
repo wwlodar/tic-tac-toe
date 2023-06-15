@@ -30,3 +30,6 @@ app = create_app(config_class=TestConfig)
 
 
 
+In order to run migrations outside Docker container:
+1. Change ```server``` to ```localhost``` in ```migrations/env.py```
+2. Run migrations: ``` flask --app app.server db migrate -m "your msg" ```
