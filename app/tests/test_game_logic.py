@@ -95,7 +95,7 @@ def test_check_if_winning_move(app, db):
     # user 1 - "o" is current_user
     game_logic.board = ["o", "o", "o", 4, 5, "x", 6, "x", 8, 9]
 
-    result = check_if_winning_move(user_1.id, "o", game_logic.board, game.id)
+    result = check_if_winning_move(user_1.id, game_logic.board, game.id)
     assert result == "user1"
     # user1 is winner
 
@@ -126,7 +126,7 @@ def test_check_for_tie(app, db):
     # user 1 - "o" is current_user
     game_logic.board = ["o", "o", "x", "o", "x", "o", "x", "x", "o"]
 
-    result = check_if_winning_move(user_1.id, "o", game_logic.board, game.id)
+    result = check_if_winning_move(user_1.id, game_logic.board, game.id)
     assert result == "Tie"
     # no winner - tie
 
